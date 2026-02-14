@@ -1,5 +1,5 @@
 # HAA-Algorithm
-Hierarchical Approximation Algorithm for physical constants
+Hierarchical Approximation Algorithm
 
 Author
 Aleksandar Petojević
