@@ -240,23 +240,40 @@ if __name__ == "__main__":
         print(f"   Status: {'BELOW TARGET' if float(final_error) < eps_target else 'CLOSE TO TARGET'}")
 
         # Final HAA formula
-        print("\n" + "="*80)
-        print("FINAL HAA FORMULA FOR alpha^{-1}:")
-        if corrections:
-            formula = "alpha^{-1} ~~ S0 + "
-            first_q = corrections[0][0]
-            m_star = sum(1 for q_val, _ in corrections if q_val == first_q)
-            formula += f"{m_star}*kappa_{first_q}"
-            for i, (q_val, coeff) in enumerate(corrections[1:], start=1):
-                formula += " + kappa_" if coeff == 1 else " - kappa_"
-                formula += str(q_val)
-            formula += " + ..."
-            print(f"  {formula}")
-        else:
-            print(f"  alpha^{{-1}} ~~ S0 = {S0_initial}")
+        print("\n" + "=" * 80)
+    print("FINAL HAA FORMULA FOR alpha^{-1}:")
+    if corrections:
+        # Grupisanje koeficijenata po q
+        q_dict = {}
+        for q_val, coeff in corrections:
+            if q_val in q_dict:
+                q_dict[q_val] += coeff
+            else:
+                q_dict[q_val] = coeff
 
-        print("\n" + "#"*80)
-        print(" ALGORITHM SUCCESSFULLY COMPLETED (Python Translation with mpmath)")
-        print("#"*80)
+            formula = "alpha^{-1} ~~ S0 + "
+            first_term = True
+
+        for q_val in sorted(q_dict.keys()):
+            total = q_dict[q_val]
+            if total == 0:
+                continue
+
+            if total > 0:
+                if first_term:
+                    formula += f"{total}*kappa_{q_val}" if total != 1 else f"kappa_{q_val}"
+                    first_term = False
+                else:
+                    formula += f" + {total}*kappa_{q_val}" if total != 1 else f" + kappa_{q_val}"
+            else:  # total < 0
+                abs_total = -total
+                if first_term:
+                    formula += f"-{abs_total}*kappa_{q_val}" if abs_total != 1 else f"-kappa_{q_val}"
+                    first_term = False
+                else:
+                    formula += f" - {abs_total}*kappa_{q_val}" if abs_total != 1 else f" - kappa_{q_val}"
+
+        formula += " + ..."
+        print(f"  {formula}")
     else:
-        print("\n Execution error! Result: ", result)
+        print(f"  alpha^{{-1}} ~~ S0 = {S0_initial}")
